@@ -39,7 +39,9 @@ message stored in local storage ?
             full_name_placeholder : 'Your name',
             email_placeholder : 'Your email',
             subject_placeholder : 'Message subject',
-            message_placeholder : 'Type your message here'
+            message_placeholder : 'Type your message here',
+            message_sent_copy : 'Thanks, your message has been sent. You can ',
+            message_sent_close_link_copy : 'close this window'
         }
 
     },
@@ -89,7 +91,7 @@ message stored in local storage ?
                 '<div class="supportjs-form-body-sent" style="display: none;">' +
                     '<div class="supportjs-message-sent">' +
                         '<span class="supportjs-tick">&#x2714;</span>' +
-                        '<span class="supportjs-message-sent-copy">Thanks, your message has been sent. You can <a href="#" class="supportjs-message-sent-close-link">close this window</a>.</span>' +
+                        '<span class="supportjs-message-sent-copy">' + options.message_window.message_sent_copy + '<a href="#" class="supportjs-message-sent-close-link">' + options.message_window.message_sent_close_link_copy + '</a></span>' +
                     '</div>' +
                 '</div>' +
             '</div>';
