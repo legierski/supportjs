@@ -33,6 +33,7 @@ message stored in local storage ?
 
         message_window : {
             visible : false, //that's meant to be read-only for user
+            sent : false,
             header_copy : 'Contact support',
             send_button_copy : 'Send message',
             send_button_sending_copy : 'Sending...',
@@ -123,7 +124,7 @@ message stored in local storage ?
             $('.supportjs-backdrop').click(supportjs.toggle_window);
             $('.supportjs-tab').click(supportjs.toggle_window);
             $('.supportjs-send').click(supportjs.send);
-            $('.supportjs-message-sent-close-link').click(supportjs.reset_window);
+            $('.supportjs-message-sent-close-link').click(supportjs.toggle_window);
 
             if(options.user.full_name !== '' && options.user.email !== '') {
                 $('.supportjs-user-full-name').hide();
@@ -132,6 +133,7 @@ message stored in local storage ?
         },
 
         toggle_window : function () {
+
             $('.supportjs-backdrop').toggle();
             $('.supportjs-window').toggle();
             $('.supportjs-tab-label-closed').toggle();
@@ -139,9 +141,12 @@ message stored in local storage ?
 
             options.message_window.visible = !options.message_window.visible;
 
-
             if(options.message_window.visible) {
                 $('.supportjs-message').focus();
+            }
+
+            if(options.message_window.sent) {
+                reset_window();
             }
 
         },
@@ -173,27 +178,11 @@ message stored in local storage ?
 
             setTimeout(show_sent_screen, 2000);
 
+            options.message_window.sent = true;
+
         },
 
-        reset_window : function (e) {
-            e.preventDefault();
 
-            supportjs.toggle_window();
-
-            // get rid of "used" message window
-            $('.supportjs-window').remove();
-
-            //recreate message window
-            $('body').append(html.message_window);
-            $('.supportjs-send').click(supportjs.send);
-            $('.supportjs-message-sent-close-link').click(supportjs.reset_window);
-
-            if(options.user.full_name !== '' && options.user.email !== '') {
-                $('.supportjs-user-full-name').hide();
-                $('.supportjs-user-email').hide();
-            }
-
-        }
     },
 
     // All other functions not accessible by supportjs.function_name go here
@@ -204,6 +193,20 @@ message stored in local storage ?
     show_sent_screen = function () {
         $('.supportjs-form-body').hide();
         $('.supportjs-form-body-sent').show();
+    },
+
+    reset_window = function () {
+
+        options.message_window.visible = false;
+        options.message_window.sent = false;
+
+        // get rid of "used" message window
+        $('.supportjs-backdrop').remove();
+        $('.supportjs-tab').remove();
+        $('.supportjs-window').remove();
+
+        //recreate elements
+        supportjs.load();
     }
 
 
