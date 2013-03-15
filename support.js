@@ -18,12 +18,17 @@ message stored in local storage ?
 
         // All the options within supportjs
 
+        urls : {
+            stylesheet : 'https://s3-eu-west-1.amazonaws.com/supportjs/supportjs.css',
+            api : 'https://app.supportjs.com/api/0.1/receive_message'
+        },
+
         user : {
             full_name : '',
             email : '',
             user_agent : navigator.userAgent,
             current_url : document.URL,
-            additional_info : null
+            additional_info : {}
         },
 
         tab : {
@@ -52,7 +57,7 @@ message stored in local storage ?
         stylesheet : function () {
             return String() +
 
-            '<link rel="stylesheet" href="assets/supportjs/supportjs.css">';
+            '<link rel="stylesheet" href="'+options.urls.stylesheet+'">';
         },
 
         tab : function () {
@@ -182,13 +187,26 @@ message stored in local storage ?
 
         },
 
+        options : function (new_options, path) {
+            if(path === undefined) {
+                path = options;
+            }
 
+            if(typeof new_options === 'object') {
+                for(var property in new_options) {
+
+                    if(typeof new_options[property] === 'object') {
+                        supportjs.options(new_options[property], path[property]);
+                    }
+                    else {
+                        path[property] = new_options[property];
+                    }
+                }
+            }
+        }
     },
 
     // All other functions not accessible by supportjs.function_name go here
-    testfunction = function (argument) {
-        alert(argument);
-    },
 
     show_sent_screen = function () {
         $('.supportjs-form-body').hide();
