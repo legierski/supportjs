@@ -41,6 +41,8 @@
 $route['default_controller'] = "redirect";
 $route['404_override'] = '';
 
+$route['api/0.1/(:any)'] = 'api_v0_1/$1';
+
 
 /* End of file routes.php */
 /* Location: ./application/config/routes.php */
