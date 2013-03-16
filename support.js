@@ -18,6 +18,8 @@ message stored in local storage ?
 
         // All the options within supportjs
 
+        api_key : '',
+
         urls : {
             stylesheet : 'https://s3-eu-west-1.amazonaws.com/supportjs/supportjs.css',
             api : 'https://app.supportjs.com/api/0.1/receive_message'
@@ -120,6 +122,10 @@ message stored in local storage ?
 
         load : function (api_key) {
 
+            if(typeof api_key === 'string') {
+                options.api_key = api_key;
+            }
+
             $('head').append(html.stylesheet);
 
             $('body').append(html.backdrop);
@@ -171,6 +177,7 @@ message stored in local storage ?
 
             // should I just save info to options.user and send that instead?
             var data_to_send = {
+                'api_key' : options.api_key,
                 'full_name' : $('.supportjs-user-full-name').val(),
                 'email' : $('.supportjs-user-email').val(),
                 'subject' : $('.supportjs-subject').val(),
