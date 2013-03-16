@@ -50,6 +50,10 @@ message stored in local storage ?
             message_placeholder : 'Type your message here',
             message_sent_copy : 'Thanks, your message has been sent. You can ',
             message_sent_close_link_copy : 'close this window'
+        },
+
+        errors_copy : {
+            sending_message_failed : 'Oops! We couldn\'t send your message. Please check your internet connection.'
         }
 
     },
@@ -175,22 +179,35 @@ message stored in local storage ?
             $('.supportjs-send').addClass('supportjs-sending');
             $('.supportjs-send').html(options.message_window.send_button_sending_copy);
 
-            // should I just save info to options.user and send that instead?
             var data_to_send = {
-                'api_key' : options.api_key,
-                'full_name' : $('.supportjs-user-full-name').val(),
-                'email' : $('.supportjs-user-email').val(),
-                'subject' : $('.supportjs-subject').val(),
-                'message' : $('.supportjs-message').val(),
-                'user_agent' : options.user.user_agent,
-                'additional_info' : options.user.additional_info
-            }
+                api_key : options.api_key,
+                full_name : $('.supportjs-user-full-name').val(),
+                email : $('.supportjs-user-email').val(),
+                subject : $('.supportjs-subject').val(),
+                message : $('.supportjs-message').val(),
+                user_agent : options.user.user_agent,
+                additional_info : options.user.additional_info
+            };
 
-            console.log(data_to_send);
+            $.ajax({
+                url: options.urls.api,
+                type: 'POST',
+                cache: false,
+                data: data_to_send,
+                dataType: 'json',
+                success: function(response) {
 
-            setTimeout(show_sent_screen, 2000);
+                    if(response.success) {
+                        options.message_window.sent = true;
+                        show_sent_screen();
+                    }
 
-            options.message_window.sent = true;
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    console.log('Oops! ' + textStatus + ' ' + errorThrown);
+                    alert(options.errors_copy.sending_message_failed);
+                }
+            });
 
         },
 
