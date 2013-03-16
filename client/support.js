@@ -18,12 +18,19 @@ message stored in local storage ?
 
         // All the options within supportjs
 
+        api_key : '',
+
+        urls : {
+            stylesheet : 'https://s3-eu-west-1.amazonaws.com/supportjs/supportjs.css',
+            api : 'https://app.supportjs.com/api/0.1/receive_message'
+        },
+
         user : {
             full_name : '',
             email : '',
             user_agent : navigator.userAgent,
             current_url : document.URL,
-            additional_info : null
+            additional_info : {}
         },
 
         tab : {
@@ -33,13 +40,20 @@ message stored in local storage ?
 
         message_window : {
             visible : false, //that's meant to be read-only for user
+            sent : false,
             header_copy : 'Contact support',
             send_button_copy : 'Send message',
             send_button_sending_copy : 'Sending...',
             full_name_placeholder : 'Your name',
             email_placeholder : 'Your email',
             subject_placeholder : 'Message subject',
-            message_placeholder : 'Type your message here'
+            message_placeholder : 'Type your message here',
+            message_sent_copy : 'Thanks, your message has been sent. You can ',
+            message_sent_close_link_copy : 'close this window'
+        },
+
+        errors_copy : {
+            sending_message_failed : 'Oops! We couldn\'t send your message. Please check your internet connection.'
         }
 
     },
@@ -49,7 +63,7 @@ message stored in local storage ?
         stylesheet : function () {
             return String() +
 
-            '<link rel="stylesheet" href="assets/supportjs/supportjs.css">';
+            '<link rel="stylesheet" href="'+options.urls.stylesheet+'">';
         },
 
         tab : function () {
@@ -89,7 +103,7 @@ message stored in local storage ?
                 '<div class="supportjs-form-body-sent" style="display: none;">' +
                     '<div class="supportjs-message-sent">' +
                         '<span class="supportjs-tick">&#x2714;</span>' +
-                        '<span class="supportjs-message-sent-copy">Thanks, your message has been sent. You can <a href="#" class="supportjs-message-sent-close-link">close this window</a>.</span>' +
+                        '<span class="supportjs-message-sent-copy">' + options.message_window.message_sent_copy + '<a href="#" class="supportjs-message-sent-close-link">' + options.message_window.message_sent_close_link_copy + '</a></span>' +
                     '</div>' +
                 '</div>' +
             '</div>';
@@ -112,6 +126,10 @@ message stored in local storage ?
 
         load : function (api_key) {
 
+            if(typeof api_key === 'string') {
+                options.api_key = api_key;
+            }
+
             $('head').append(html.stylesheet);
 
             $('body').append(html.backdrop);
@@ -121,7 +139,7 @@ message stored in local storage ?
             $('.supportjs-backdrop').click(supportjs.toggle_window);
             $('.supportjs-tab').click(supportjs.toggle_window);
             $('.supportjs-send').click(supportjs.send);
-            $('.supportjs-message-sent-close-link').click(supportjs.reset_window);
+            $('.supportjs-message-sent-close-link').click(supportjs.toggle_window);
 
             if(options.user.full_name !== '' && options.user.email !== '') {
                 $('.supportjs-user-full-name').hide();
@@ -130,6 +148,7 @@ message stored in local storage ?
         },
 
         toggle_window : function () {
+
             $('.supportjs-backdrop').toggle();
             $('.supportjs-window').toggle();
             $('.supportjs-tab-label-closed').toggle();
@@ -137,9 +156,12 @@ message stored in local storage ?
 
             options.message_window.visible = !options.message_window.visible;
 
-
             if(options.message_window.visible) {
                 $('.supportjs-message').focus();
+            }
+
+            if(options.message_window.sent) {
+                reset_window();
             }
 
         },
@@ -157,51 +179,76 @@ message stored in local storage ?
             $('.supportjs-send').addClass('supportjs-sending');
             $('.supportjs-send').html(options.message_window.send_button_sending_copy);
 
-            // should I just save info to options.user and send that instead?
             var data_to_send = {
-                'full_name' : $('.supportjs-user-full-name').val(),
-                'email' : $('.supportjs-user-email').val(),
-                'subject' : $('.supportjs-subject').val(),
-                'message' : $('.supportjs-message').val(),
-                'user_agent' : options.user.user_agent,
-                'additional_info' : options.user.additional_info
-            }
+                api_key : options.api_key,
+                full_name : $('.supportjs-user-full-name').val(),
+                email : $('.supportjs-user-email').val(),
+                subject : $('.supportjs-subject').val(),
+                message : $('.supportjs-message').val(),
+                user_agent : options.user.user_agent,
+                additional_info : options.user.additional_info
+            };
 
-            console.log(data_to_send);
+            $.ajax({
+                url: options.urls.api,
+                type: 'POST',
+                cache: false,
+                data: data_to_send,
+                dataType: 'json',
+                success: function(response) {
 
-            setTimeout(show_sent_screen, 2000);
+                    if(response.success) {
+                        options.message_window.sent = true;
+                        show_sent_screen();
+                    }
+
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    console.log('Oops! ' + textStatus + ' ' + errorThrown);
+                    alert(options.errors_copy.sending_message_failed);
+                }
+            });
 
         },
 
-        reset_window : function (e) {
-            e.preventDefault();
-
-            supportjs.toggle_window();
-
-            // get rid of "used" message window
-            $('.supportjs-window').remove();
-
-            //recreate message window
-            $('body').append(html.message_window);
-            $('.supportjs-send').click(supportjs.send);
-            $('.supportjs-message-sent-close-link').click(supportjs.reset_window);
-
-            if(options.user.full_name !== '' && options.user.email !== '') {
-                $('.supportjs-user-full-name').hide();
-                $('.supportjs-user-email').hide();
+        options : function (new_options, path) {
+            if(path === undefined) {
+                path = options;
             }
 
+            if(typeof new_options === 'object') {
+                for(var property in new_options) {
+
+                    if(typeof new_options[property] === 'object') {
+                        supportjs.options(new_options[property], path[property]);
+                    }
+                    else {
+                        path[property] = new_options[property];
+                    }
+                }
+            }
         }
     },
 
     // All other functions not accessible by supportjs.function_name go here
-    testfunction = function (argument) {
-        alert(argument);
-    },
 
     show_sent_screen = function () {
         $('.supportjs-form-body').hide();
         $('.supportjs-form-body-sent').show();
+    },
+
+    reset_window = function () {
+
+        options.message_window.visible = false;
+        options.message_window.sent = false;
+
+        // get rid of "used" message window
+        $('.supportjs-backdrop').remove();
+        $('.supportjs-tab').remove();
+        $('.supportjs-window').remove();
+
+        //recreate elements
+        supportjs.load();
     }
 
 
