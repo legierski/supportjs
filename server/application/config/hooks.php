@@ -10,7 +10,12 @@
 |
 */
 
-
+$hook['post_controller'] = array(
+                            'class'    => 'Hooks',
+                            'function' => 'enable_profiler',
+                            'filename' => 'hooks.php',
+                            'filepath' => 'hooks'
+                            );
 
 /* End of file hooks.php */
 /* Location: ./application/config/hooks.php */
