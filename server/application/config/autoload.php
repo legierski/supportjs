@@ -52,7 +52,7 @@ $autoload['packages'] = array();
 |	$autoload['libraries'] = array('database', 'session', 'xmlrpc');
 */
 
-$autoload['libraries'] = array('database', 'curl', 'amazon_ses');
+$autoload['libraries'] = array('database', 'curl', 'amazon_ses', 'phpconsole');
 
 
 /*
@@ -64,7 +64,7 @@ $autoload['libraries'] = array('database', 'curl', 'amazon_ses');
 |	$autoload['helper'] = array('url', 'file');
 */
 
-$autoload['helper'] = array('url', 'global');
+$autoload['helper'] = array('url', 'global', 'phpconsole');
 
 
 /*
