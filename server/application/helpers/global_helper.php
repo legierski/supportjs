@@ -3,3 +3,16 @@
 function dev() {
     return ENVIRONMENT == 'development';
 }
+
+function is_cli() {
+
+    $CI = &get_instance();
+
+    return $CI->input->is_cli_request();
+}
+
+function redirect_if_not_cli() {
+    if(!is_cli()) {
+        redirect();
+    }
+}

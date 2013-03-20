@@ -23,4 +23,21 @@ class Accounts_model extends CI_Model {
         }
     }
 
+    public function get_by_id($account_id) {
+
+        $query = $this->db->select('a.*')
+                            ->from('accounts a')
+                            ->where('a.id', $account_id)
+                            ->limit(1)
+                            ->get();
+
+        if($query->num_rows() > 0) {
+            $accounts = $query->result();
+            return $accounts[0];
+        }
+        else {
+            return false;
+        }
+    }
+
 }
