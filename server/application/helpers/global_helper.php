@@ -16,3 +16,13 @@ function redirect_if_not_cli() {
         redirect();
     }
 }
+
+function foreach_safe($array) {
+    if(is_array($array)) {
+        if(count($array) > 0) {
+            return true;
+        }
+    }
+
+    return false;
+}

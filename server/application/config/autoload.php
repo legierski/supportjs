@@ -64,7 +64,7 @@ $autoload['libraries'] = array('database', 'curl', 'amazon_ses', 'phpconsole');
 |	$autoload['helper'] = array('url', 'file');
 */
 
-$autoload['helper'] = array('url', 'global', 'phpconsole');
+$autoload['helper'] = array('url', 'global', 'phpconsole', 'mail');
 
 
 /*

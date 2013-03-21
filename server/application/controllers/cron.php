@@ -27,12 +27,16 @@ class Cron extends CI_Controller {
             $account = $this->accounts_model->get_by_id($email->account_id);
 
             if($account !== false) {
-                $this->amazon_ses->to($account->email);
-                $this->amazon_ses->from('messages@supportjs.com', $email->client_name);
-                $this->amazon_ses->reply_to($email->client_email);
-                $this->amazon_ses->subject($email->subject);
-                $this->amazon_ses->message($email->body);
-                $this->amazon_ses->send();
+
+                $data = array(
+                    'client_name' => $email->client_name,
+                    'client_email' => $email->client_email,
+                    'subject' => $email->subject,
+                    'body' => $email->body,
+                    'additional_info' => json_decode($email->additional_info, true)
+                    );
+
+                send_mail($account->email, 'client_email', $data);
 
                 echo 'Email sent'."\n";
             }
