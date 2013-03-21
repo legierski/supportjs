@@ -12,6 +12,7 @@ function phpconsole_init() {
         ==============================================
         */
 
+        $CI->phpconsole->set_path_to_cert('application/certs/cacert.pem');
         $CI->phpconsole->set_domain('.supportjs.com');
         $CI->phpconsole->add_user('nickname', 'user_api_key', 'project_api_key'); // you can add more developers, just execute another add_user()
 
