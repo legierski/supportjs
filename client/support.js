@@ -205,6 +205,14 @@ message stored in local storage ?
                         options.message_window.sent = true;
                         show_sent_screen();
                     }
+                    else {
+                        if(typeof response.msg != 'undefined') {
+                            alert(response.msg);
+                        }
+                        else {
+                            alert('Sending message failed. Please contact support@supportjs.com');
+                        }
+                    }
 
                 },
                 error: function(jqXHR, textStatus, errorThrown) {
