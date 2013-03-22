@@ -19,25 +19,25 @@ function send_mail($to_email, $type, $data) {
             $reply_to_email = $data['client_email'];
 
             $subject = $data['subject'];
-            $body = $data['body'] . '<br><br>';
+            $body = nl2br(utf8_wordwrap($data['body']), false) . '<br><br>' . "\n\n";
 
             if(isset($data['additional_info'])) {
                 if(foreach_safe($data['additional_info'])) {
 
-                    $body .=    '---------------------------------------------------------------------------------<br><br>' .
-                                'Additional info:<br><br>';
+                    $body .=    '---------------------------------------------------------------------------------<br><br>' . "\n\n" .
+                                'Additional info:<br><br>' . "\n\n";
                     foreach($data['additional_info'] as $info_name => $info_value) {
                         $info_name = ucfirst($info_name);
                         $info_name = str_replace('_', ' ', $info_name);
 
-                        $body .= $info_name.': '.$info_value.'<br>';
+                        $body .= $info_name.': '.$info_value.'<br>' . "\n";
                     }
 
-                    $body .= '<br>';
+                    $body .= '<br>' . "\n";
                 }
             }
 
-            $body .=    '---------------------------------------------------------------------------------<br><br>' .
+            $body .=    '---------------------------------------------------------------------------------<br><br>' . "\n\n" .
 
                         'Message sent via SupportJS - http://supportjs.com';
 
