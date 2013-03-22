@@ -28,9 +28,10 @@ message stored in local storage ?
         user : {
             full_name : '',
             email : '',
-            user_agent : navigator.userAgent,
-            current_url : document.URL,
-            additional_info : {}
+            additional_info : {
+                user_agent : navigator.userAgent,
+                current_url : document.URL
+            }
         },
 
         tab : {
@@ -121,7 +122,9 @@ message stored in local storage ?
         },
 
         set_additional_info : function(additional_info) {
-            options.user.additional_info = additional_info;
+            for(var property in additional_info) {
+                options.user.additional_info[property] = additional_info[property];
+            }
         },
 
         load : function (api_key) {
@@ -185,7 +188,6 @@ message stored in local storage ?
                 email : $('.supportjs-user-email').val(),
                 subject : $('.supportjs-subject').val(),
                 message : $('.supportjs-message').val(),
-                user_agent : options.user.user_agent,
                 additional_info : options.user.additional_info
             };
 
