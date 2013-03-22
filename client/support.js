@@ -1,13 +1,3 @@
-/*
-
-maybe have minimum of css for tab only hardcoded here and the rest loaded as an external file.
-loaded when user clicks the tab to open window?
-
-message stored in local storage ?
-
-*/
-
-
 (function (window, $, undefined) {
 
     "use strict";
@@ -22,7 +12,8 @@ message stored in local storage ?
 
         urls : {
             stylesheet : 'https://s3-eu-west-1.amazonaws.com/supportjs/supportjs.css',
-            api : 'https://app.supportjs.com/api/0.1/receive_message'
+            api : 'https://app.supportjs.com/api/0.1/receive_message',
+            additional_stylesheet : ''
         },
 
         user : {
@@ -40,7 +31,7 @@ message stored in local storage ?
         },
 
         message_window : {
-            visible : false, //that's meant to be read-only for user
+            visible : false,
             sent : false,
             header_copy : 'Contact support',
             send_button_copy : 'Send message',
@@ -65,6 +56,12 @@ message stored in local storage ?
             return String() +
 
             '<link rel="stylesheet" href="'+options.urls.stylesheet+'">';
+        },
+
+        additional_stylesheet : function () {
+            return String() +
+
+            '<link rel="stylesheet" href="'+options.urls.additional_stylesheet+'">';
         },
 
         tab : function () {
@@ -134,6 +131,10 @@ message stored in local storage ?
             }
 
             $('head').append(html.stylesheet);
+
+            if(options.urls.additional_stylesheet !== '') {
+                $('head').append(html.additional_stylesheet);
+            }
 
             $('body').append(html.backdrop);
             $('body').append(html.message_window);
