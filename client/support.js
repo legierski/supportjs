@@ -150,7 +150,9 @@ message stored in local storage ?
             }
         },
 
-        toggle_window : function () {
+        toggle_window : function (e) {
+
+            e.preventDefault();
 
             $('.supportjs-backdrop').toggle();
             $('.supportjs-window').toggle();
