@@ -45,6 +45,14 @@
 
         errors_copy : {
             sending_message_failed : 'Oops! We couldn\'t send your message. Please check your internet connection.'
+        },
+
+        hooks : {
+            load : function () {},
+            toggle_window : function () {},
+            send : function () {},
+            send_success : function () {}, // response.success may still be false!
+            send_error : function () {},
         }
 
     },
@@ -146,6 +154,8 @@
                 $('.supportjs-user-full-name').hide();
                 $('.supportjs-user-email').hide();
             }
+
+            options.hooks.load();
         },
 
         toggle_window : function (e) {
@@ -167,6 +177,7 @@
                 reset_window();
             }
 
+            options.hooks.toggle_window();
         },
 
         send : function (e) {
@@ -220,13 +231,17 @@
                         }
                     }
 
+                    options.hooks.send_success();
                 },
                 error: function(jqXHR, textStatus, errorThrown) {
                     console.log('Oops! ' + textStatus + ' ' + errorThrown);
                     alert(options.errors_copy.sending_message_failed);
+
+                    options.hooks.send_error();
                 }
             });
 
+            options.hooks.send();
         },
 
         options : function (new_options, path) {
