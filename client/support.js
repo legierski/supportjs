@@ -19,10 +19,9 @@
         user : {
             full_name : '',
             email : '',
-            additional_info : {
-                user_agent : navigator.userAgent,
-                current_url : document.URL
-            }
+            send_user_agent : true,
+            send_current_url : true,
+            additional_info : {}
         },
 
         tab : {
@@ -119,9 +118,7 @@
         },
 
         set_additional_info : function(additional_info) {
-            for(var property in additional_info) {
-                options.user.additional_info[property] = additional_info[property];
-            }
+            options.user.additional_info = additional_info;
         },
 
         load : function (api_key) {
@@ -184,6 +181,14 @@
 
             $('.supportjs-send').addClass('supportjs-sending');
             $('.supportjs-send').html(options.message_window.send_button_sending_copy);
+
+            if(options.user.send_user_agent) {
+                options.user.additional_info.user_agent = navigator.userAgent;
+            }
+
+            if(options.user.send_current_url) {
+                options.user.additional_info.current_url = document.URL;
+            }
 
             var data_to_send = {
                 api_key : options.api_key,
