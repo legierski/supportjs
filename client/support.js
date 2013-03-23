@@ -1,13 +1,3 @@
-/*
-
-maybe have minimum of css for tab only hardcoded here and the rest loaded as an external file.
-loaded when user clicks the tab to open window?
-
-message stored in local storage ?
-
-*/
-
-
 (function (window, $, undefined) {
 
     "use strict";
@@ -22,14 +12,15 @@ message stored in local storage ?
 
         urls : {
             stylesheet : 'https://s3-eu-west-1.amazonaws.com/supportjs/supportjs.css',
-            api : 'https://app.supportjs.com/api/0.1/receive_message'
+            api : 'https://app.supportjs.com/api/0.1/receive_message',
+            additional_stylesheet : ''
         },
 
         user : {
             full_name : '',
             email : '',
-            user_agent : navigator.userAgent,
-            current_url : document.URL,
+            send_user_agent : true,
+            send_current_url : true,
             additional_info : {}
         },
 
@@ -39,7 +30,7 @@ message stored in local storage ?
         },
 
         message_window : {
-            visible : false, //that's meant to be read-only for user
+            visible : false,
             sent : false,
             header_copy : 'Contact support',
             send_button_copy : 'Send message',
@@ -54,6 +45,14 @@ message stored in local storage ?
 
         errors_copy : {
             sending_message_failed : 'Oops! We couldn\'t send your message. Please check your internet connection.'
+        },
+
+        hooks : {
+            load : function () {},
+            toggle_window : function () {},
+            send : function () {},
+            send_success : function () {}, // response.success may still be false!
+            send_error : function () {},
         }
 
     },
@@ -64,6 +63,12 @@ message stored in local storage ?
             return String() +
 
             '<link rel="stylesheet" href="'+options.urls.stylesheet+'">';
+        },
+
+        additional_stylesheet : function () {
+            return String() +
+
+            '<link rel="stylesheet" href="'+options.urls.additional_stylesheet+'">';
         },
 
         tab : function () {
@@ -132,6 +137,10 @@ message stored in local storage ?
 
             $('head').append(html.stylesheet);
 
+            if(options.urls.additional_stylesheet !== '') {
+                $('head').append(html.additional_stylesheet);
+            }
+
             $('body').append(html.backdrop);
             $('body').append(html.message_window);
             $('body').append(html.tab);
@@ -145,9 +154,13 @@ message stored in local storage ?
                 $('.supportjs-user-full-name').hide();
                 $('.supportjs-user-email').hide();
             }
+
+            options.hooks.load();
         },
 
-        toggle_window : function () {
+        toggle_window : function (e) {
+
+            e.preventDefault();
 
             $('.supportjs-backdrop').toggle();
             $('.supportjs-window').toggle();
@@ -164,6 +177,7 @@ message stored in local storage ?
                 reset_window();
             }
 
+            options.hooks.toggle_window();
         },
 
         send : function (e) {
@@ -179,13 +193,20 @@ message stored in local storage ?
             $('.supportjs-send').addClass('supportjs-sending');
             $('.supportjs-send').html(options.message_window.send_button_sending_copy);
 
+            if(options.user.send_user_agent) {
+                options.user.additional_info.user_agent = navigator.userAgent;
+            }
+
+            if(options.user.send_current_url) {
+                options.user.additional_info.current_url = document.URL;
+            }
+
             var data_to_send = {
                 api_key : options.api_key,
                 full_name : $('.supportjs-user-full-name').val(),
                 email : $('.supportjs-user-email').val(),
                 subject : $('.supportjs-subject').val(),
                 message : $('.supportjs-message').val(),
-                user_agent : options.user.user_agent,
                 additional_info : options.user.additional_info
             };
 
@@ -201,14 +222,26 @@ message stored in local storage ?
                         options.message_window.sent = true;
                         show_sent_screen();
                     }
+                    else {
+                        if(typeof response.msg != 'undefined') {
+                            alert(response.msg);
+                        }
+                        else {
+                            alert('Sending message failed. Please contact support@supportjs.com');
+                        }
+                    }
 
+                    options.hooks.send_success();
                 },
                 error: function(jqXHR, textStatus, errorThrown) {
                     console.log('Oops! ' + textStatus + ' ' + errorThrown);
                     alert(options.errors_copy.sending_message_failed);
+
+                    options.hooks.send_error();
                 }
             });
 
+            options.hooks.send();
         },
 
         options : function (new_options, path) {
